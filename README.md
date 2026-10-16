@@ -21,3 +21,22 @@ docker build --build-arg COMPRESS_BINARIES=false -t enterprise-providers:uncompr
 
 The Docker build cross-compiles for its target platform, including `linux/amd64`
 and `linux/arm64`, without running target binaries during the build.
+
+## Provider display text
+
+Provider YAML references backend catalog messages in `name`, `description`, and
+configuration parameters' `friendlyName` and `description`:
+
+```yaml
+name: "${google_auth_provider_name}"
+description: "${google_auth_provider_description}"
+```
+
+Messages live in Obot's `pkg/i18n/messages/auth-providers/{locale}.json` or
+`pkg/i18n/messages/model-providers/{locale}.json`. Use the YAML filename with
+hyphens replaced by underscores as the key prefix. Parameter keys append the
+lowercase configuration suffix and `friendly_name` or `description`.
+
+Obot resolves references using `Accept-Language`, falling back to English for
+missing or empty translations. Unknown keys retain their `${key}` reference.
+Literal text remains valid. Ship catalog additions in Obot together with updated provider registry images; catalog changes require rebuilding Obot.

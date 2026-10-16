@@ -1,37 +1,37 @@
-name: "Azure (Entra ID)"
+name: "${azure_entra_model_provider_name}"
 command: "azure-entra-model-provider/bin/obot-provider"
 validateArgs:
   - validate
 icon: "/admin/assets/azure_openai_icon.svg"
 iconDark: "/admin/assets/azure_openai_icon.svg"
-description: "Model provider for Azure OpenAI/Foundry models using Entra ID service principal authentication"
+description: "${azure_entra_model_provider_description}"
 link: "https://azure.microsoft.com/en-us/products/ai-services/openai-service"
 requiredConfigurationParameters:
   - name: "OBOT_AZURE_ENTRA_MODEL_PROVIDER_ENDPOINT"
-    friendlyName: "Azure Endpoint"
-    description: "Azure service endpoint URL (e.g. https://my-resource.cognitiveservices.azure.com/ or https://my-resource.openai.azure.com/)"
+    friendlyName: "${azure_entra_model_provider_endpoint_friendly_name}"
+    description: "${azure_entra_model_provider_endpoint_description}"
     sensitive: false
   - name: "OBOT_AZURE_ENTRA_MODEL_PROVIDER_CLIENT_ID"
-    friendlyName: "Client ID"
-    description: "Azure Entra ID application (client) ID"
+    friendlyName: "${azure_entra_model_provider_client_id_friendly_name}"
+    description: "${azure_entra_model_provider_client_id_description}"
     sensitive: false
   - name: "OBOT_AZURE_ENTRA_MODEL_PROVIDER_CLIENT_SECRET"
-    friendlyName: "Client Secret"
-    description: "Azure Entra ID client secret"
+    friendlyName: "${azure_entra_model_provider_client_secret_friendly_name}"
+    description: "${azure_entra_model_provider_client_secret_description}"
     sensitive: true
   - name: "OBOT_AZURE_ENTRA_MODEL_PROVIDER_TENANT_ID"
-    friendlyName: "Tenant ID"
-    description: "Azure Entra ID tenant ID"
+    friendlyName: "${azure_entra_model_provider_tenant_id_friendly_name}"
+    description: "${azure_entra_model_provider_tenant_id_description}"
     sensitive: false
   - name: "OBOT_AZURE_ENTRA_MODEL_PROVIDER_SUBSCRIPTION_ID"
-    friendlyName: "Subscription ID"
-    description: "Azure subscription ID"
+    friendlyName: "${azure_entra_model_provider_subscription_id_friendly_name}"
+    description: "${azure_entra_model_provider_subscription_id_description}"
     sensitive: false
   - name: "OBOT_AZURE_ENTRA_MODEL_PROVIDER_RESOURCE_GROUP"
-    friendlyName: "Resource Group"
-    description: "Azure resource group containing the Cognitive Services account"
+    friendlyName: "${azure_entra_model_provider_resource_group_friendly_name}"
+    description: "${azure_entra_model_provider_resource_group_description}"
     sensitive: false
   - name: "OBOT_AZURE_ENTRA_MODEL_PROVIDER_RESOURCE_NAME"
-    friendlyName: "Resource Name"
-    description: "Azure Cognitive Services resource name"
+    friendlyName: "${azure_entra_model_provider_resource_name_friendly_name}"
+    description: "${azure_entra_model_provider_resource_name_description}"
     sensitive: false

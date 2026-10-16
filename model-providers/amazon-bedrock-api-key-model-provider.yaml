@@ -1,17 +1,17 @@
-name: "Amazon Bedrock (API Key)"
+name: "${amazon_bedrock_api_key_model_provider_name}"
 command: "amazon-bedrock-api-key-model-provider/bin/obot-provider"
 validateArgs:
   - validate
 icon: "/admin/assets/amazon-bedrock.png"
-description: "Model provider for Amazon Bedrock models using API key authentication"
+description: "${amazon_bedrock_api_key_model_provider_description}"
 link: "https://aws.amazon.com/bedrock/"
 requiredConfigurationParameters:
   - name: "OBOT_AMAZON_BEDROCK_API_KEY_MODEL_PROVIDER_API_KEY"
-    friendlyName: "API Key"
-    description: "Amazon Bedrock API Key"
+    friendlyName: "${amazon_bedrock_api_key_model_provider_api_key_friendly_name}"
+    description: "${amazon_bedrock_api_key_model_provider_api_key_description}"
     sensitive: true
 optionalConfigurationParameters:
   - name: "OBOT_AMAZON_BEDROCK_API_KEY_MODEL_PROVIDER_REGION"
-    friendlyName: "AWS Region"
-    description: "AWS Region for Amazon Bedrock (defaults to us-east-1)"
+    friendlyName: "${amazon_bedrock_api_key_model_provider_region_friendly_name}"
+    description: "${amazon_bedrock_api_key_model_provider_region_description}"
     sensitive: false

@@ -1,68 +1,68 @@
-name: "Auth0"
+name: "${auth0_auth_provider_name}"
 command: "auth0-auth-provider/bin/obot-provider"
 icon: "https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/auth0.svg"
-description: "Auth provider for Auth0"
+description: "${auth0_auth_provider_description}"
 link: "https://auth0.com/"
 requiredEntitlements:
   - "OBOT_ENTERPRISE_AUTH_PROVIDERS"
 requiredConfigurationParameters:
   - name: "OBOT_AUTH0_AUTH_PROVIDER_CLIENT_ID"
-    friendlyName: "Client ID"
-    description: "Client ID for your Auth0 application. Can be found in Auth0 Dashboard > Applications > Settings"
+    friendlyName: "${auth0_auth_provider_client_id_friendly_name}"
+    description: "${auth0_auth_provider_client_id_description}"
     sensitive: false
   - name: "OBOT_AUTH0_AUTH_PROVIDER_CLIENT_SECRET"
-    friendlyName: "Client Secret"
-    description: "Client secret for your Auth0 application. Can be found in Auth0 Dashboard > Applications > Settings"
+    friendlyName: "${auth0_auth_provider_client_secret_friendly_name}"
+    description: "${auth0_auth_provider_client_secret_description}"
     sensitive: true
   - name: "OBOT_AUTH0_AUTH_PROVIDER_DOMAIN"
-    friendlyName: "Auth0 Domain"
-    description: "Your Auth0 domain (e.g. your-tenant.us.auth0.com). Can be found in Auth0 Dashboard > Applications > Settings"
+    friendlyName: "${auth0_auth_provider_domain_friendly_name}"
+    description: "${auth0_auth_provider_domain_description}"
     sensitive: false
   - name: "OBOT_AUTH0_AUTH_PROVIDER_MGMT_CLIENT_ID"
-    friendlyName: "Management API Client ID"
-    description: "Client ID for a Machine-to-Machine application authorized for the Auth0 Management API. Create one in Auth0 Dashboard > Applications."
+    friendlyName: "${auth0_auth_provider_mgmt_client_id_friendly_name}"
+    description: "${auth0_auth_provider_mgmt_client_id_description}"
     sensitive: false
   - name: "OBOT_AUTH0_AUTH_PROVIDER_MGMT_CLIENT_SECRET"
-    friendlyName: "Management API Client Secret"
-    description: "Client secret for the Management API Machine-to-Machine application."
+    friendlyName: "${auth0_auth_provider_mgmt_client_secret_friendly_name}"
+    description: "${auth0_auth_provider_mgmt_client_secret_description}"
     sensitive: true
   - name: "OBOT_AUTH_PROVIDER_COOKIE_SECRET"
-    friendlyName: "Cookie Secret"
-    description: "Secret used to encrypt cookies. Must be a random string of length 16, 24, or 32."
+    friendlyName: "${auth0_auth_provider_cookie_secret_friendly_name}"
+    description: "${auth0_auth_provider_cookie_secret_description}"
     sensitive: true
     hidden: true
   - name: "OBOT_AUTH_PROVIDER_EMAIL_DOMAINS"
-    friendlyName: "Allowed E-Mail Domains"
-    description: "A list of email domains that are allowed to authenticate with this provider. * is a special value that allows all domains."
+    friendlyName: "${auth0_auth_provider_email_domains_friendly_name}"
+    description: "${auth0_auth_provider_email_domains_description}"
     sensitive: false
 optionalConfigurationParameters:
   - name: "OBOT_AUTH_PROVIDER_POSTGRES_CONNECTION_DSN"
-    friendlyName: "PostgreSQL connection string (DSN)"
-    description: "The connection string for a PostgreSQL database to use for session storage. If unset, cookies will be used for session storage instead."
+    friendlyName: "${auth0_auth_provider_postgres_connection_dsn_friendly_name}"
+    description: "${auth0_auth_provider_postgres_connection_dsn_description}"
     sensitive: true
     hidden: true
   - name: "OBOT_AUTH_PROVIDER_POSTGRES_MAX_CONNECTIONS"
-    friendlyName: "PostgreSQL max open connections"
-    description: "The maximum number of open connections to the PostgreSQL database."
+    friendlyName: "${auth0_auth_provider_postgres_max_connections_friendly_name}"
+    description: "${auth0_auth_provider_postgres_max_connections_description}"
     sensitive: false
     hidden: true
   - name: "OBOT_AUTH_PROVIDER_POSTGRES_MAX_IDLE_CONNECTIONS"
-    friendlyName: "PostgreSQL max idle connections"
-    description: "The maximum number of idle connections to the PostgreSQL database."
+    friendlyName: "${auth0_auth_provider_postgres_max_idle_connections_friendly_name}"
+    description: "${auth0_auth_provider_postgres_max_idle_connections_description}"
     sensitive: false
     hidden: true
   - name: "OBOT_AUTH_PROVIDER_POSTGRES_CONNECTION_LIFETIME_SECONDS"
-    friendlyName: "PostgreSQL connection lifetime"
-    description: "The maximum lifetime of a PostgreSQL database connection, in seconds."
+    friendlyName: "${auth0_auth_provider_postgres_connection_lifetime_seconds_friendly_name}"
+    description: "${auth0_auth_provider_postgres_connection_lifetime_seconds_description}"
     sensitive: false
     hidden: true
   - name: "OBOT_AUTH_PROVIDER_TOKEN_REFRESH_DURATION"
-    friendlyName: "Token Refresh Duration"
-    description: "Time to wait before attempting to refresh auth tokens. Should be in a format like 1h1m1s. Default: 1h"
+    friendlyName: "${auth0_auth_provider_token_refresh_duration_friendly_name}"
+    description: "${auth0_auth_provider_token_refresh_duration_description}"
     sensitive: false
   - name: "OBOT_AUTH0_AUTH_PROVIDER_INSECURE_ALLOW_UNVERIFIED_EMAIL"
-    friendlyName: "Allow Unverified Emails"
-    description: "Allow logins where the IdP does not assert email_verified=true. This weakens account/email-domain validation. Only enable if your Auth0 tenant requires it. Default: false"
+    friendlyName: "${auth0_auth_provider_insecure_allow_unverified_email_friendly_name}"
+    description: "${auth0_auth_provider_insecure_allow_unverified_email_description}"
     sensitive: false
     hidden: true
 postgresTablePrefix: "auth0_"

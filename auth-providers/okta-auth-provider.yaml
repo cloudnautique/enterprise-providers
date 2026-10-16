@@ -1,69 +1,69 @@
-name: "Okta"
+name: "${okta_auth_provider_name}"
 command: "okta-auth-provider/bin/obot-provider"
 icon: "https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/okta.svg"
-description: "Auth provider for Okta"
+description: "${okta_auth_provider_description}"
 link: "https://okta.com/"
 requiredEntitlements:
   - "OBOT_ENTERPRISE_AUTH_PROVIDERS"
 requiredConfigurationParameters:
   - name: "OBOT_OKTA_AUTH_PROVIDER_CLIENT_ID"
-    friendlyName: "Client ID"
-    description: "Client ID for your Okta OAuth app. Can be found in Okta Developer Console > Applications"
+    friendlyName: "${okta_auth_provider_client_id_friendly_name}"
+    description: "${okta_auth_provider_client_id_description}"
     sensitive: false
   - name: "OBOT_OKTA_AUTH_PROVIDER_CLIENT_SECRET"
-    friendlyName: "Client Secret"
-    description: "Client secret for your Okta OAuth app. Can be found in Okta Developer Console > Applications"
+    friendlyName: "${okta_auth_provider_client_secret_friendly_name}"
+    description: "${okta_auth_provider_client_secret_description}"
     sensitive: true
   - name: "OBOT_OKTA_AUTH_PROVIDER_ISSUER_URL"
-    friendlyName: "Org URL"
-    description: "Org URL for Okta. Should be https://{your-okta-domain} with no path"
+    friendlyName: "${okta_auth_provider_issuer_url_friendly_name}"
+    description: "${okta_auth_provider_issuer_url_description}"
     sensitive: false
   - name: "OBOT_OKTA_AUTH_PROVIDER_SERVICE_CLIENT_ID"
-    friendlyName: "API Services Client ID"
-    description: "Client ID for the Okta API Services app. This is a separate app from the user authentication OIDC app. Create an 'API Services' app in Okta Admin Console."
+    friendlyName: "${okta_auth_provider_service_client_id_friendly_name}"
+    description: "${okta_auth_provider_service_client_id_description}"
     sensitive: false
   - name: "OBOT_OKTA_AUTH_PROVIDER_SERVICE_PRIVATE_KEY"
-    friendlyName: "API Services Private Key"
-    description: "PEM-encoded RSA private key for your Okta API Services app. Must start with '-----BEGIN PRIVATE KEY-----'."
+    friendlyName: "${okta_auth_provider_service_private_key_friendly_name}"
+    description: "${okta_auth_provider_service_private_key_description}"
     sensitive: true
     multiline: true
   - name: "OBOT_AUTH_PROVIDER_COOKIE_SECRET"
-    friendlyName: "Cookie Secret"
-    description: "Secret used to encrypt cookies. Must be a random string of length 16, 24, or 32."
+    friendlyName: "${okta_auth_provider_cookie_secret_friendly_name}"
+    description: "${okta_auth_provider_cookie_secret_description}"
     sensitive: true
     hidden: true
   - name: "OBOT_AUTH_PROVIDER_EMAIL_DOMAINS"
-    friendlyName: "Allowed E-Mail Domains"
-    description: "A list of email domains that are allowed to authenticate with this provider. * is a special value that allows all domains."
+    friendlyName: "${okta_auth_provider_email_domains_friendly_name}"
+    description: "${okta_auth_provider_email_domains_description}"
     sensitive: false
 optionalConfigurationParameters:
   - name: "OBOT_AUTH_PROVIDER_POSTGRES_CONNECTION_DSN"
-    friendlyName: "PostgreSQL connection string (DSN)"
-    description: "The connection string for a PostgreSQL database to use for session storage. If unset, cookies will be used for session storage instead."
+    friendlyName: "${okta_auth_provider_postgres_connection_dsn_friendly_name}"
+    description: "${okta_auth_provider_postgres_connection_dsn_description}"
     sensitive: true
     hidden: true
   - name: "OBOT_AUTH_PROVIDER_POSTGRES_MAX_CONNECTIONS"
-    friendlyName: "PostgreSQL max open connections"
-    description: "The maximum number of open connections to the PostgreSQL database."
+    friendlyName: "${okta_auth_provider_postgres_max_connections_friendly_name}"
+    description: "${okta_auth_provider_postgres_max_connections_description}"
     sensitive: false
     hidden: true
   - name: "OBOT_AUTH_PROVIDER_POSTGRES_MAX_IDLE_CONNECTIONS"
-    friendlyName: "PostgreSQL max idle connections"
-    description: "The maximum number of idle connections to the PostgreSQL database."
+    friendlyName: "${okta_auth_provider_postgres_max_idle_connections_friendly_name}"
+    description: "${okta_auth_provider_postgres_max_idle_connections_description}"
     sensitive: false
     hidden: true
   - name: "OBOT_AUTH_PROVIDER_POSTGRES_CONNECTION_LIFETIME_SECONDS"
-    friendlyName: "PostgreSQL connection lifetime"
-    description: "The maximum lifetime of a PostgreSQL database connection, in seconds."
+    friendlyName: "${okta_auth_provider_postgres_connection_lifetime_seconds_friendly_name}"
+    description: "${okta_auth_provider_postgres_connection_lifetime_seconds_description}"
     sensitive: false
     hidden: true
   - name: "OBOT_AUTH_PROVIDER_TOKEN_REFRESH_DURATION"
-    friendlyName: "Token Refresh Duration"
-    description: "Time to wait before attempting to refresh auth tokens. Should be in a format like 1h1m1s. Default: 1h"
+    friendlyName: "${okta_auth_provider_token_refresh_duration_friendly_name}"
+    description: "${okta_auth_provider_token_refresh_duration_description}"
     sensitive: false
   - name: "OBOT_AUTH_PROVIDER_ENABLE_LOGGING"
-    friendlyName: "Enable Logging"
-    description: "Set to true to enable request, auth, and standard logging for the auth provider. Default: false"
+    friendlyName: "${okta_auth_provider_enable_logging_friendly_name}"
+    description: "${okta_auth_provider_enable_logging_description}"
     sensitive: false
 postgresTablePrefix: "okta_"
 groupIDPrefix: "okta/"

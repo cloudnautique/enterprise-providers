@@ -1,21 +1,21 @@
-name: "Azure (API Key)"
+name: "${azure_model_provider_name}"
 command: "azure-model-provider/bin/obot-provider"
 validateArgs:
   - validate
 icon: "/admin/assets/azure_openai_icon.svg"
 iconDark: "/admin/assets/azure_openai_icon.svg"
-description: "Model provider for Azure OpenAI/Foundry models using API key authentication"
+description: "${azure_model_provider_description}"
 link: "https://azure.microsoft.com/en-us/products/ai-services/openai-service"
 requiredConfigurationParameters:
   - name: "OBOT_AZURE_MODEL_PROVIDER_ENDPOINT"
-    friendlyName: "Azure Endpoint"
-    description: "Azure service endpoint URL (e.g. https://my-resource.cognitiveservices.azure.com/ or https://my-resource.openai.azure.com/)"
+    friendlyName: "${azure_model_provider_endpoint_friendly_name}"
+    description: "${azure_model_provider_endpoint_description}"
     sensitive: false
   - name: "OBOT_AZURE_MODEL_PROVIDER_API_KEY"
-    friendlyName: "API Key"
-    description: "Azure API key"
+    friendlyName: "${azure_model_provider_api_key_friendly_name}"
+    description: "${azure_model_provider_api_key_description}"
     sensitive: true
   - name: "OBOT_AZURE_MODEL_PROVIDER_DEPLOYMENTS"
-    friendlyName: "Deployments"
-    description: "List of deployments (format: deployment[:usage[:dialect]]). Usage defaults to 'llm' and supports 'llm', 'reasoning-llm', 'text-embedding', or 'image-generation'. Dialect defaults to OpenAI and supports 'openai' or 'anthropic'."
+    friendlyName: "${azure_model_provider_deployments_friendly_name}"
+    description: "${azure_model_provider_deployments_description}"
     sensitive: false

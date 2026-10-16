@@ -1,25 +1,25 @@
-name: "Amazon Bedrock (Static Credentials)"
+name: "${amazon_bedrock_model_provider_name}"
 command: "amazon-bedrock-model-provider/bin/obot-provider"
 validateArgs:
   - validate
 icon: "/admin/assets/amazon-bedrock.png"
-description: "Model provider for Amazon Bedrock models"
+description: "${amazon_bedrock_model_provider_description}"
 link: "https://aws.amazon.com/bedrock/"
 requiredConfigurationParameters:
   - name: "OBOT_AMAZON_BEDROCK_MODEL_PROVIDER_ACCESS_KEY_ID"
-    friendlyName: "AWS Access Key ID"
-    description: "AWS Access Key ID"
+    friendlyName: "${amazon_bedrock_model_provider_access_key_id_friendly_name}"
+    description: "${amazon_bedrock_model_provider_access_key_id_description}"
     sensitive: true
   - name: "OBOT_AMAZON_BEDROCK_MODEL_PROVIDER_SECRET_ACCESS_KEY"
-    friendlyName: "AWS Secret Access Key"
-    description: "AWS Secret Access Key"
+    friendlyName: "${amazon_bedrock_model_provider_secret_access_key_friendly_name}"
+    description: "${amazon_bedrock_model_provider_secret_access_key_description}"
     sensitive: true
 optionalConfigurationParameters:
   - name: "OBOT_AMAZON_BEDROCK_MODEL_PROVIDER_SESSION_TOKEN"
-    friendlyName: "AWS Session Token"
-    description: "AWS Session Token for temporary credentials"
+    friendlyName: "${amazon_bedrock_model_provider_session_token_friendly_name}"
+    description: "${amazon_bedrock_model_provider_session_token_description}"
     sensitive: true
   - name: "OBOT_AMAZON_BEDROCK_MODEL_PROVIDER_REGION"
-    friendlyName: "AWS Region"
-    description: "AWS Region for Amazon Bedrock, defaults to us-east-1"
+    friendlyName: "${amazon_bedrock_model_provider_region_friendly_name}"
+    description: "${amazon_bedrock_model_provider_region_description}"
     sensitive: false
