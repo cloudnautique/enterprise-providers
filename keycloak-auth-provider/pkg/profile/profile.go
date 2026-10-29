@@ -45,6 +45,13 @@ type group struct {
 	ParentID string `json:"parentId"`
 }
 
+// Keycloak can optionally escape slashes within group names as "~/" in paths.
+// Accept both representations when confirming that a parentless group is a root.
+func (g group) isRoot() bool {
+	return g.ParentID == "" && g.Name != "" &&
+		(g.Path == "/"+g.Name || g.Path == "/"+strings.ReplaceAll(g.Name, "/", "~/"))
+}
+
 func (g group) info() (state.GroupInfo, error) {
 	if g.ID == "" || g.Path == "" || !strings.HasPrefix(g.Path, "/") {
 		return state.GroupInfo{}, errors.New("keycloak group is missing its native ID or full path")
@@ -158,9 +165,9 @@ func FetchUserGroupInfos(ctx context.Context, directory *client.Client, userID s
 		directSeen[direct.ID] = true
 		directIDs = append(directIDs, direct.ID)
 		// Reuse brief parent links when supplied. Older versions and roots may
-		// omit parentId. A native name equal to the entire path identifies a root;
+		// omit parentId. A path matching the native name (possibly escaped) identifies a root;
 		// otherwise fetch details. Never split a path to infer ancestor IDs.
-		if direct.ParentID != "" || (direct.Name != "" && direct.Path == "/"+direct.Name) {
+		if direct.ParentID != "" || direct.isRoot() {
 			if _, err := direct.info(); err != nil {
 				return nil, err
 			}
@@ -199,7 +206,7 @@ func FetchUserGroupInfos(ctx context.Context, directory *client.Client, userID s
 		for _, g := range fetched {
 			// A missing parent is meaningful only for a confirmed root. Never
 			// silently truncate an ancestor chain when a detail response is incomplete.
-			if g.ParentID == "" && (g.Name == "" || g.Path != "/"+g.Name) {
+			if g.ParentID == "" && !g.isRoot() {
 				return nil, errors.New("membership group has no parent ID and is not a confirmed root")
 			}
 			memo[g.ID] = g

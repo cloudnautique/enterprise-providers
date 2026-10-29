@@ -638,3 +638,59 @@ func TestMembershipRequiresConfirmedRootForEveryAncestor(t *testing.T) {
 		})
 	}
 }
+
+func TestMembershipRootWithSlashes(t *testing.T) {
+	for _, rootPath := range []string{"/Engineering/Platform/Ops", "/Engineering~/Platform~/Ops"} {
+		for _, source := range []string{"brief", "detail", "ancestor"} {
+			t.Run(rootPath+"/"+source, func(t *testing.T) {
+				root := group{ID: "root", Name: "Engineering/Platform/Ops", Path: rootPath}
+				brief := root
+				wantCount, wantReads := 1, int32(0)
+				switch source {
+				case "detail":
+					brief.Name = ""
+					wantReads = 1
+				case "ancestor":
+					brief = group{ID: "child", Name: "Team", Path: rootPath + "/Team", ParentID: root.ID}
+					wantCount, wantReads = 2, 1
+				}
+				var detailReads atomic.Int32
+				c := directoryFixture(t, func(w http.ResponseWriter, r *http.Request) {
+					var result any
+					switch r.URL.Path {
+					case "/users/person":
+						result = map[string]any{"id": "person", "enabled": true}
+					case "/users/person/groups":
+						result = []group{brief}
+					case "/groups/root":
+						detailReads.Add(1)
+						result = root
+					default:
+						t.Errorf("unexpected request %s", r.URL.Path)
+						http.NotFound(w, r)
+						return
+					}
+					if err := json.NewEncoder(w).Encode(result); err != nil {
+						t.Error(err)
+					}
+				})
+				infos, err := FetchUserGroupInfos(t.Context(), c, "person")
+				if err != nil || len(infos) != wantCount {
+					t.Fatalf("memberships %v, error %v; want %d", infos, err, wantCount)
+				}
+				foundRoot := false
+				for _, info := range infos {
+					if info.ID == "keycloak/root" && info.Name == rootPath {
+						foundRoot = true
+					}
+				}
+				if !foundRoot {
+					t.Fatalf("root ID and native path missing from %v", infos)
+				}
+				if got := detailReads.Load(); got != wantReads {
+					t.Fatalf("detail reads %d, want %d", got, wantReads)
+				}
+			})
+		}
+	}
+}
