@@ -36,7 +36,7 @@ func TestNativePagesReadOnlyRequestedWindow(t *testing.T) {
 				t.Error(err)
 			}
 			offset, limit = index, 1
-		} else if limit != 51 || q.Get("search") != " " {
+		} else if (limit != 50 && limit != 51) || q.Get("search") != " " {
 			t.Errorf("unexpected native window %s", r.URL.RawQuery)
 		}
 		groups := []group{}
@@ -62,7 +62,7 @@ func TestNativePagesReadOnlyRequestedWindow(t *testing.T) {
 		}
 		before := calls.Load()
 		page, err := FetchGroupPage(t.Context(), c, authcommon.PageRequest{Limit: 50, Cursor: cursor})
-		wantCalls := int32(2)
+		wantCalls := int32(3)
 		if offset == 20000 {
 			wantCalls = 1
 		}
@@ -248,12 +248,18 @@ func TestNativePageDiscardsPrefixWhenTieLookupFails(t *testing.T) {
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
-		if _, err := w.Write([]byte(`[{"id":"a","name":"Alpha","path":"/Alpha"},{"id":"s1","name":"Shared","path":"/A/Shared"},{"id":"s2","name":"Shared","path":"/B/Shared"}]`)); err != nil {
+		groups := []group{
+			{ID: "a", Name: "Alpha", Path: "/Alpha"},
+			{ID: "s1", Name: "Shared", Path: "/A/Shared"},
+			{ID: "s2", Name: "Shared", Path: "/B/Shared"},
+		}
+		max, _ := strconv.Atoi(r.URL.Query().Get("max"))
+		if err := json.NewEncoder(w).Encode(groups[:min(max, len(groups))]); err != nil {
 			t.Error(err)
 		}
 	})
 	page, err := FetchGroupPage(t.Context(), c, authcommon.PageRequest{Limit: 2})
-	if err == nil || len(page.Items) != 0 || page.NextCursor != "" || calls.Load() != 2 {
+	if err == nil || len(page.Items) != 0 || page.NextCursor != "" || calls.Load() != 3 {
 		t.Fatalf("tie failure returned a partial page: %+v, %v, calls=%d", page, err, calls.Load())
 	}
 }
@@ -267,7 +273,7 @@ func TestNativePagesUseDatabaseCollationForBoundaryCohorts(t *testing.T) {
 			Path: fmt.Sprintf("/Department%02d/%s", i, name),
 		})
 	}
-	var sawThreeReads bool
+	var sawFourReads bool
 	for _, collation := range []struct {
 		name string
 		key  func(string) string
@@ -330,6 +336,8 @@ func TestNativePagesUseDatabaseCollationForBoundaryCohorts(t *testing.T) {
 							return groups[i].ID < groups[j].ID
 						})
 						groups = groups[min(offset, len(groups)):min(offset+max, len(groups))]
+						// Keycloak sorts each SQL window again using Java String order.
+						sort.SliceStable(groups, func(i, j int) bool { return groups[i].Name < groups[j].Name })
 						if err := json.NewEncoder(w).Encode(groups); err != nil {
 							t.Error(err)
 						}
@@ -350,11 +358,11 @@ func TestNativePagesUseDatabaseCollationForBoundaryCohorts(t *testing.T) {
 							t.Fatalf("page=%+v error=%v", page, err)
 						}
 						readCount := calls.Load() - before
-						if readCount > 3 {
+						if readCount > 4 {
 							t.Fatalf("page made %d directory reads", readCount)
 						}
-						if readCount == 3 {
-							sawThreeReads = true
+						if readCount == 4 {
+							sawFourReads = true
 						}
 						for _, item := range page.Items {
 							if seen[item.ID] {
@@ -377,8 +385,8 @@ func TestNativePagesUseDatabaseCollationForBoundaryCohorts(t *testing.T) {
 			}
 		}
 	}
-	if !sawThreeReads {
-		t.Fatal("fixture did not exercise a prior cohort, native window and boundary lookup in one page")
+	if !sawFourReads {
+		t.Fatal("fixture did not exercise a prior cohort, two native windows and boundary lookup in one page")
 	}
 }
 
@@ -399,7 +407,8 @@ func TestNativePageRequiresLookaheadInExactCohort(t *testing.T) {
 		if r.URL.Query().Get("exact") == "true" {
 			groups = groups[:1]
 		}
-		if err := json.NewEncoder(w).Encode(groups); err != nil {
+		max, _ := strconv.Atoi(r.URL.Query().Get("max"))
+		if err := json.NewEncoder(w).Encode(groups[:min(max, len(groups))]); err != nil {
 			t.Error(err)
 		}
 	})
@@ -441,7 +450,8 @@ func TestNativePagePaddedNameErrorsExplainRequiredRename(t *testing.T) {
 								Path: "/Parent/" + name,
 							})
 						}
-						if err := json.NewEncoder(w).Encode(groups); err != nil {
+						max, _ := strconv.Atoi(r.URL.Query().Get("max"))
+						if err := json.NewEncoder(w).Encode(groups[:min(max, len(groups))]); err != nil {
 							t.Error(err)
 						}
 					})
@@ -463,7 +473,7 @@ func TestNativePagePaddedNameErrorsExplainRequiredRename(t *testing.T) {
 					if err == nil || errors.Is(err, authcommon.ErrInvalidCursor) || !strings.Contains(err.Error(), "rename group") || len(page.Items) != 0 || page.NextCursor != "" {
 						t.Fatalf("padded name did not produce an actionable compatibility error: page=%+v, err=%v", page, err)
 					}
-					wantCalls := int32(2)
+					wantCalls := int32(3)
 					if continuation {
 						wantCalls = 1
 					}
@@ -548,12 +558,105 @@ func TestNativePageDoesNotTreatUnicodeSpaceAsJavaTrimPadding(t *testing.T) {
 				},
 			}
 		}
-		if err := json.NewEncoder(w).Encode(groups); err != nil {
+		max, _ := strconv.Atoi(r.URL.Query().Get("max"))
+		if err := json.NewEncoder(w).Encode(groups[:min(max, len(groups))]); err != nil {
 			t.Error(err)
 		}
 	})
 	_, err := FetchGroupPage(t.Context(), c, authcommon.PageRequest{Limit: 1})
 	if !errors.Is(err, authcommon.ErrInvalidCursor) {
 		t.Fatalf("Unicode space was incorrectly treated as Java trim padding: %v", err)
+	}
+}
+
+func TestNativePagesWithResortedMixedCaseWindow(t *testing.T) {
+	// Database order differs from the Java order applied after selecting each window.
+	all := []group{{ID: "a", Name: "alpha", Path: "/alpha"}, {ID: "b", Name: "Beta", Path: "/Beta"}}
+	c := directoryFixture(t, func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		rows := append([]group{}, all...)
+		if q.Get("exact") == "true" {
+			rows = []group{}
+			for _, g := range all {
+				if g.Name == q.Get("search") {
+					rows = append(rows, g)
+				}
+			}
+		}
+		first, _ := strconv.Atoi(q.Get("first"))
+		max, _ := strconv.Atoi(q.Get("max"))
+		rows = rows[min(first, len(rows)):min(first+max, len(rows))]
+		sort.Slice(rows, func(i, j int) bool { return rows[i].Name < rows[j].Name })
+		if err := json.NewEncoder(w).Encode(rows); err != nil {
+			t.Error(err)
+		}
+	})
+	cursor := ""
+	var got []string
+	for n := 0; n < 3; n++ {
+		page, err := FetchGroupPage(t.Context(), c, authcommon.PageRequest{Limit: 1, Cursor: cursor})
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, g := range page.Items {
+			got = append(got, g.ID)
+		}
+		cursor = page.NextCursor
+		if cursor == "" {
+			break
+		}
+	}
+	if len(got) != 2 || got[0] != "keycloak/a" || got[1] != "keycloak/b" || cursor != "" {
+		t.Fatalf("expected each of keycloak/a and keycloak/b once; got %v", got)
+	}
+}
+
+func TestNativePagesRejectInconsistentWindows(t *testing.T) {
+	alpha := group{ID: "a", Name: "alpha", Path: "/alpha"}
+	beta := group{ID: "b", Name: "Beta", Path: "/Beta"}
+	gamma := group{ID: "c", Name: "gamma", Path: "/gamma"}
+	other := group{ID: "d", Name: "delta", Path: "/delta"}
+	for _, tc := range []struct {
+		name   string
+		wide   []group
+		narrow []group
+		status int
+	}{
+		{name: "shortened window", wide: []group{alpha, beta, gamma}, narrow: []group{alpha}},
+		{name: "replacement outside boundary cohort", wide: []group{alpha, beta, gamma}, narrow: []group{alpha, other}},
+		{name: "removed prefix outside boundary cohort", wide: []group{alpha, beta, gamma}, narrow: []group{beta, other}},
+		{name: "renamed common group", wide: []group{alpha, beta, gamma}, narrow: []group{{ID: "a", Name: "renamed", Path: "/renamed"}, beta}},
+		{name: "window read forbidden", wide: []group{alpha, beta, gamma}, status: http.StatusForbidden},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			c := directoryFixture(t, func(w http.ResponseWriter, r *http.Request) {
+				q := r.URL.Query()
+				rows := tc.wide
+				if q.Get("exact") == "true" {
+					rows = []group{}
+					for _, g := range tc.wide {
+						if g.Name == q.Get("search") {
+							rows = append(rows, g)
+						}
+					}
+				} else if q.Get("max") == "2" {
+					if tc.status != 0 {
+						w.WriteHeader(tc.status)
+						return
+					}
+					rows = tc.narrow
+				}
+				if err := json.NewEncoder(w).Encode(rows); err != nil {
+					t.Error(err)
+				}
+			})
+			page, err := FetchGroupPage(t.Context(), c, authcommon.PageRequest{Limit: 2})
+			if err == nil || len(page.Items) != 0 || page.NextCursor != "" {
+				t.Fatalf("inconsistent windows returned a partial page: %+v, %v", page, err)
+			}
+			if tc.status == 0 && !errors.Is(err, authcommon.ErrInvalidCursor) {
+				t.Fatalf("expected restartable cursor error, got %v", err)
+			}
+		})
 	}
 }

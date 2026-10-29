@@ -71,7 +71,7 @@ func FetchGroupPage(ctx context.Context, directory *client.Client, req authcommo
 		}
 		return nil
 	}
-	// At most three reads: a prior cohort, a native window, and the boundary
+	// At most four reads: a prior cohort, two native windows, and the boundary
 	// cohort. Reuse the boundary lookup rather than fetching that cohort again.
 	if cursor.Name != "" {
 		groups, err := readGroupPage(ctx, directory, cursor.Name, true, 0, maxGroups+1)
@@ -101,7 +101,26 @@ func FetchGroupPage(ctx context.Context, directory *client.Client, req authcommo
 			appendGroups(groups)
 			return authcommon.PageResult{Items: items}, nil
 		}
-		lookahead := groups[remaining]
+		// Keycloak sorts each SQL window again in Java, so response position
+		// does not identify the database boundary. Compare windows by native ID.
+		window, err := readGroupPage(ctx, directory, req.NameFilter, false, cursor.Offset, remaining)
+		if err != nil {
+			return authcommon.PageResult{}, err
+		}
+		if len(window) != remaining {
+			return authcommon.PageResult{}, fmt.Errorf("%w: groups changed during paging", authcommon.ErrInvalidCursor)
+		}
+		windowByID := make(map[string]group, len(window))
+		for _, g := range window {
+			windowByID[g.ID] = g
+		}
+		var lookahead group
+		for _, g := range groups {
+			if _, ok := windowByID[g.ID]; !ok {
+				lookahead = g
+				break
+			}
+		}
 		cohort, err := readGroupPage(ctx, directory, lookahead.Name, true, 0, maxGroups+1)
 		if err != nil {
 			return authcommon.PageResult{}, err
@@ -116,13 +135,28 @@ func FetchGroupPage(ctx context.Context, directory *client.Client, req authcommo
 		if !cohortIDs[lookahead.ID] {
 			return authcommon.PageResult{}, unresolvedGroupCohort(lookahead.Name)
 		}
-		end := remaining
-		for end > 0 && cohortIDs[groups[end-1].ID] {
-			end--
+		// Ties may select different IDs in the two SQL windows. All differences
+		// must belong to the boundary cohort; otherwise the directory changed.
+		// The complete prefix is a set, not necessarily a response-slice prefix.
+		prefix := make([]group, 0, remaining)
+		for _, g := range groups {
+			previous, present := windowByID[g.ID]
+			if (present && previous != g) || (!present && !cohortIDs[g.ID]) {
+				return authcommon.PageResult{}, fmt.Errorf("%w: groups changed during paging", authcommon.ErrInvalidCursor)
+			}
+			delete(windowByID, g.ID)
+			if !cohortIDs[g.ID] {
+				prefix = append(prefix, g)
+			}
 		}
-		appendGroups(groups[:end])
-		cursor.Offset += end
-		if end < remaining {
+		for id := range windowByID {
+			if !cohortIDs[id] {
+				return authcommon.PageResult{}, fmt.Errorf("%w: groups changed during paging", authcommon.ErrInvalidCursor)
+			}
+		}
+		appendGroups(prefix)
+		cursor.Offset += len(prefix)
+		if len(prefix) < remaining {
 			cursor.Name, cursor.AfterID = lookahead.Name, ""
 			if err := consumeCohort(cohort); err != nil {
 				return authcommon.PageResult{}, err
