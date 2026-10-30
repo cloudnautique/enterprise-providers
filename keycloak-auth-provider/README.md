@@ -22,7 +22,11 @@ administrator access automatically by email address through deployment settings.
 Email-domain restrictions also depend on users having trustworthy email addresses.
 
 **Token Refresh Duration** controls how often Obot refreshes authentication tokens
-for active sessions. The default is 1 hour.
+for active sessions. The default is 1 hour. Set it shorter than the realm's
+**Access Token Lifespan**, under **Realm settings > Tokens**. Keycloak's default
+lifespan is 5 minutes, so a value such as `4m` works. If tokens expire before Obot
+refreshes them, updates to users' display names and avatars fail until the next
+refresh.
 
 ## Users and groups
 
